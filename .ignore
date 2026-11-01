@@ -1,0 +1,47 @@
+# ===== 构建产物 =====
+build/
+build-*/
+out/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*_autogen/
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.d
+*.gcda
+*.gcno
+
+# ===== 工具缓存 / 索引 / IDE 配置 =====
+.cache/
+.qoder/
+.codebuddy/
+.zed/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== 临时文件与日志 =====
+*.log
+*.tmp
+*.bak
+*.bak-*
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+
+# ===== 压缩包 =====
+*.zip
+*.tar
+*.tar.gz
+*.7z
