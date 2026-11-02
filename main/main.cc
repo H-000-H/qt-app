@@ -10,8 +10,11 @@
 int main(int argc , char *argv[])
 {
     QApplication app(argc,argv);
-    auto csv = new app::Csv(QIODevice::WriteOnly|QIODevice::Text,QDir::homePath()+"/file_tmp_auto_clean/test.csv");
-    csv->set_top_format("姓名,过程,分数,行数");
+    auto csv = new app::Csv(&app);
+    app::Csv::Config csv_cfg;
+    csv_cfg.file_path  = QDir::homePath() + "/file_tmp_auto_clean/test.csv";
+    csv_cfg.top_format = QStringLiteral("姓名,过程,分数,行数");
+    csv->open(csv_cfg);
     csv->write(QStringLiteral("h-000h,perfect,500,%1").arg(csv->get_lines()));
     for(int i = 0; i < 500 ; i++)
     {

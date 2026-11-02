@@ -18,6 +18,7 @@ find_package(Qt6 REQUIRED COMPONENTS
   Mqtt
 )
 
+add_subdirectory(console)
 add_subdirectory(file-write)
 add_subdirectory(net)
 
@@ -44,6 +45,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
   file_component
   net_component
+  console_component
   Qt6::Core
   Qt6::Widgets
   Qt6::Charts

@@ -5,51 +5,80 @@
 #include <QObject>
 #include <QString>
 #include <QTextStream>
-namespace  app
+namespace app
 {
+    /**
+     * @brief 按行写 CSV 文件
+     * @details 字段分隔由调用方自己拼好，本类只负责换行、表头和行数统计
+     */
     class Csv : public QObject
     {
         Q_OBJECT
     public:
-        explicit Csv(   QIODevice::OpenMode flag = QIODevice::WriteOnly|QIODevice::Text ,
-                        QString path =QDir::homePath(),
-                        bool is_open = true ,
-                        QObject *parent = nullptr);
-        ~Csv();
-        bool set_file_path(QString new_path);
+        explicit Csv(QObject *parent = nullptr);
+        ~Csv() override;
+
+        /** @brief 打开文件所需的参数 */
+        struct Config
+        {
+            /** @brief 文件路径，含文件名 */
+            QString file_path = QDir::homePath();
+            /** @brief 打开模式，Append 模式下不能写表头 */
+            QIODevice::OpenMode open_mode = QIODevice::WriteOnly | QIODevice::Text;
+            /** @brief 表头，非空则 open 成功后写在第一行 */
+            QString top_format;
+        };
 
         /**
-         * @brief 传递一个qstring的字符串然后 , 是分隔 \n是结束 显式调用不内嵌触发自己写的slots可以跳过但是本类里面都需要写
-         * @param format[in] 传递的字符串
-         * @details num , type , class '\n' |num|type|class|    换行
-         * @note 在开头后用一次就行了不能动态改
+         * @brief 按配置打开文件，表头非空时一并写入
+         * @param[in] cfg 文件路径、打开模式和表头
+         * @return false 表示文件已打开、路径为空或打开失败
          */
-        bool set_top_format(const QString format);
+        bool open(const Config &cfg);
 
         /**
-         * @brief 直接写入数据的函数一般不用一般都是信号了connect触发
-         * @param content 写入数据
+         * @brief 关闭文件
+         * @return 重复调用返回 true
          */
-        bool write(const QString context);
+        bool close();
 
-        qint32 get_lines() const{return lines_;}
-    public slots:
         /**
-         * @brief 打开文件
-         * @param [in] 写入文件的权限和写入的方法
+         * @brief 换一个文件继续写
+         * @param[in] new_path 新的文件路径
+         * @return false 表示路径为空或重开失败
+         * @details 原来打开着就先关，再用当前配置重开；原来没打开就只记下路径
          */
-        bool on_open(QIODevice::OpenMode flag);
-        bool on_close();
-        
+        bool set_file_path(const QString &new_path);
+
+        /**
+         * @brief 写一行数据
+         * @param[in] content 一整行内容，分隔符和列数由调用方保证
+         * @return false 表示文件未打开或写失败
+         */
+        bool write(const QString &content);
+
+        /** @brief 已写入行数，表头也算一行 */
+        qint32 get_lines() const;
+
     signals:
+        /** @brief 出错信息，可直接展示 */
         void log_err(const QString &err);
-        void log_line(const QString &msg);
-        void log_lines(const QString &msg , qint32 lines);
+        /** @brief 带行号的日志 */
+        void log_lines(const QString &msg, qint32 lines);
+
     private:
-        QString file_path_ = QDir::homePath();
+        /**
+         * @brief 把表头写到文件开头
+         * @param[in] format 表头内容
+         * @return false 表示 Append 模式、表头已存在或定位失败
+         */
+        bool write_top_format(const QString &format);
+
+        Config cfg_;
         QFile file_;
-        qint32 lines_ = 0;//行数
-        QIODevice::OpenMode flag_ = QIODevice::WriteOnly | QIODevice::Text;
-        QTextStream out_{&file_};//始终绑定 file_ 的文本流
+        /** @brief 已写入行数 */
+        qint32 lines_ = 0;
+        /** @brief 始终绑定 file_ 的文本流 */
+        QTextStream out_{&file_};
     };
 }

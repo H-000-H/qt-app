@@ -21,11 +21,11 @@ namespace app
     TcpClient::TcpClient(QObject *parent):QObject(parent)
     {
         client_             = std::make_unique<QTcpSocket>(this);
-        stop_timer_         = std::make_unique<QTimer>(this);
+        stop_timer_         = std::make_unique<QTimer>();
         stop_timer_->setSingleShot(true);
         host_               = std::make_unique<QHostAddress>();//不带qobject
-        init_reconnect_timer(this);//重连定时器由基类创建，到点回调 do_reconnect()
-        init_timeout_timer(this);//建链超时定时器由基类创建，到点回调 on_timeout()
+        init_reconnect_timer();//重连定时器由基类创建，到点回调 do_reconnect()
+        init_timeout_timer();//建链超时定时器由基类创建，到点回调 on_timeout()
         wire_client();
 
         //关闭超时兜底：disconnectFromHost 迟迟等不到 UnconnectedState 就暴力断

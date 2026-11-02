@@ -25,11 +25,15 @@ namespace app
         {
             QString local_host              = "0.0.0.0";
             quint16 local_port              = 0;
-            bool    auto_allocate           = true;   //true 由系统分配本地地址和端口，false 用 local_host/local_port
+            /** @brief true 由系统分配本地地址和端口，false 用 local_host/local_port */
+            bool    auto_allocate           = true;
             int     connect_timeout         = 5000;
-            int     max_recv_number_of_msg  = 500;//接收条数不是bit数量因为udp的包分发和tcp这种不一样
-            int     datagram_warn_size      = kDefaultDatagramWarnSize;//超过这个值只告警不拦截，0 表示关闭告警
-            int     recv_buffer_size        = 0;   //内核接收缓冲字节数(SO_RCVBUF)，0 表示用系统默认
+            /** @brief 接收条数不是bit数量因为udp的包分发和tcp这种不一样 */
+            int     max_recv_number_of_msg  = 500;
+            /** @brief 超过这个值只告警不拦截，0 表示关闭告警 */
+            int     datagram_warn_size      = kDefaultDatagramWarnSize;
+            /** @brief 内核接收缓冲字节数(SO_RCVBUF)，0 表示用系统默认 */
+            int     recv_buffer_size        = 0;
             QUdpSocket::BindMode bind_mode  = QUdpSocket::BindFlag::DefaultForPlatform;
         };
 

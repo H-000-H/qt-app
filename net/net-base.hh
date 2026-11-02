@@ -19,8 +19,10 @@ namespace app
      */
     struct NetConfig
     {
-        QString host = "";      //服务端地址
-        quint16 port = 1883;    //服务端端口，其它协议在自己的 Config 里覆盖默认值
+        /** @brief 服务端地址 */
+        QString host = "";
+        /** @brief 服务端端口，其它协议在自己的 Config 里覆盖默认值 */
+        quint16 port = 1883;
     };
 
     /**
@@ -31,10 +33,14 @@ namespace app
     {
         static constexpr quint8 kDefaultMaxRetry = 6;
 
-        std::optional<quint8> max_retry;     //重连次数上限；不填用 kDefaultMaxRetry，填 0 表示不重连
-        bool   auto_reconnect     = true;   //掉线后是否自动重连
-        bool   reconnect_infinite = false;  //无限重连，退避封顶 30s
-        int    reconnect_interval = 0;      //固定重连间隔(ms)，0 表示指数退避
+        /** @brief 重连次数上限；不填用 kDefaultMaxRetry，填 0 表示不重连 */
+        std::optional<quint8> max_retry;
+        /** @brief 掉线后是否自动重连 */
+        bool   auto_reconnect     = true;
+        /** @brief 无限重连，退避封顶 30s */
+        bool   reconnect_infinite = false;
+        /** @brief 固定重连间隔(ms)，0 表示指数退避 */
+        int    reconnect_interval = 0;
     };
 
     /**
@@ -43,12 +49,18 @@ namespace app
      */
     enum class FrameFlag : quint8
     {
-        None    = 0x00,        //纯长度头
-        Magic   = 0x01 << 0,   //头部带 magic，用于校验和错位重同步
-        Version = 0x01 << 1,   //头部带协议版本
-        Type    = 0x01 << 2,   //头部带消息类型
-        Crc     = 0x01 << 3,   //头部带校验字段
-        Tag     = 0x01 << 4,   //头部带自定义标签，内容不校验只随帧携带
+        /** @brief 纯长度头 */
+        None    = 0x00,
+        /** @brief 头部带 magic，用于校验和错位重同步 */
+        Magic   = 0x01 << 0,
+        /** @brief 头部带协议版本 */
+        Version = 0x01 << 1,
+        /** @brief 头部带消息类型 */
+        Type    = 0x01 << 2,
+        /** @brief 头部带校验字段 */
+        Crc     = 0x01 << 3,
+        /** @brief 头部带自定义标签，内容不校验只随帧携带 */
+        Tag     = 0x01 << 4,
     };
 
     /** @brief 位图组合，方便写 FrameFlag::Magic | FrameFlag::Version */
@@ -67,9 +79,12 @@ namespace app
     enum class CrcKind : quint8
     {
         None  = 0,
-        Sum8  = 1,   //1 字节累加和
-        Crc16 = 2,   //2 字节 CRC-16/CCITT
-        Crc32 = 3,   //4 字节 CRC-32
+        /** @brief 1 字节累加和 */
+        Sum8  = 1,
+        /** @brief 2 字节 CRC-16/CCITT */
+        Crc16 = 2,
+        /** @brief 4 字节 CRC-32 */
+        Crc32 = 3,
     };
 
     /** @brief 校验工具：宽度、计算、比对 */
@@ -206,14 +221,21 @@ namespace app
      */
     struct FrameHeader
     {
-        quint32    body_len = 0;   //包体字节数
-        QByteArray ext;            //头部剩余字节（magic/type/seq/crc 等，协议自定义）
+        /** @brief 包体字节数 */
+        quint32    body_len = 0;
+        /** @brief 头部剩余字节（magic/type/seq/crc 等，协议自定义） */
+        QByteArray ext;
 
-        //以下由协议层解析后填好，未开启对应 FrameFlag 时为空/0
-        QByteArray magic;          //帧头魔术字
-        QByteArray version;        //协议版本原始字节
-        QByteArray tag;            //自定义标签原始字节
-        quint8     type = 0;       //消息类型
+        /** @note 以下由协议层解析后填好，未开启对应 FrameFlag 时为空/0 */
+
+        /** @brief 帧头魔术字 */
+        QByteArray magic;
+        /** @brief 协议版本原始字节 */
+        QByteArray version;
+        /** @brief 自定义标签原始字节 */
+        QByteArray tag;
+        /** @brief 消息类型 */
+        quint8     type = 0;
 
         /**
          * @brief 解析长度字段，并把头部除长度外的其余字节收进 ext
@@ -236,7 +258,7 @@ namespace app
             if (len_offset > 0)
                 ds.skipRawData(static_cast<int>(len_offset));
 
-            //按字节数原样取出，再按字节序拼，能覆盖 1~4 的所有宽度
+            /** @brief 按字节数原样取出，再按字节序拼，能覆盖 1~4 的所有宽度 */
             char raw[4] = {0};
             if (ds.readRawData(raw, static_cast<int>(len_size)) != len_size)
                 return false;
@@ -280,8 +302,10 @@ namespace app
          */
         enum class CloseReason
         {
-            UserStop,       ///< 主动调用 stop()
-            NetworkLost,    ///< 掉线且不会再重连（未开自动重连或次数耗尽）
+            /** @brief 主动调用 stop() */
+            UserStop,
+            /** @brief 掉线且不会再重连（未开自动重连或次数耗尽） */
+            NetworkLost,
         };
 
         /**
@@ -331,7 +355,7 @@ namespace app
          * @details 建链超时、握手超时这类"等不到状态迁移就强制中断"的场景共用；
          *          定时器由本类独占持有，不设 parent，避免和 QObject 父子关系重复接管
          */
-        void init_timeout_timer(QObject *owner)
+        void init_timeout_timer(QObject *owner = nullptr)
         {
             timeout_timer_ = std::make_unique<QTimer>();
             timeout_timer_->setSingleShot(true);
@@ -364,7 +388,7 @@ namespace app
          * @param[in] owner 派生类对象本身，只作为信号上下文
          * @details 构造期调用；定时器由本类独占持有，不设 parent
          */
-        void init_reconnect_timer(QObject *owner)
+        void init_reconnect_timer(QObject *owner = nullptr)
         {
             reconnect_timer_ = std::make_unique<QTimer>();
             reconnect_timer_->setSingleShot(true);
@@ -408,9 +432,12 @@ namespace app
         /** @brief 主动 stop 时掐掉待触发的重连 */
         void cancel_reconnect() { if (reconnect_timer_) reconnect_timer_->stop(); }
 
-        qint8   retry_ = 0;                          //当前已重连次数，连上后清零
-        std::unique_ptr<QTimer> reconnect_timer_;    //重连调度定时器
-        std::unique_ptr<QTimer> timeout_timer_;      //建链/握手超时定时器
+        /** @brief 当前已重连次数，连上后清零 */
+        qint8   retry_ = 0;
+        /** @brief 重连调度定时器 */
+        std::unique_ptr<QTimer> reconnect_timer_;
+        /** @brief 建链/握手超时定时器 */
+        std::unique_ptr<QTimer> timeout_timer_;
     };
 }
 

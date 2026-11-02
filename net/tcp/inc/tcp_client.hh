@@ -39,32 +39,52 @@ namespace app
 
         struct Config : StreamConfig
         {
-            QString local_host              = "0.0.0.0";  //auto_allocate=false 时绑定的本地地址
-            quint16 local_port              = 0;           //0 表示由系统分配
-            bool    auto_allocate           = true;   //true 由系统分配本地地址和端口，false 用 local_host/local_port
+            /** @brief auto_allocate=false 时绑定的本地地址 */
+            QString local_host              = "0.0.0.0";
+            /** @brief 0 表示由系统分配 */
+            quint16 local_port              = 0;
+            /** @brief true 由系统分配本地地址和端口，false 用 local_host/local_port */
+            bool    auto_allocate           = true;
             int     connect_timeout         = 0;
 
-            qint8   head_length              = 4;    /* 头部总长，含 magic 与长度字段 */
-            quint8  len_size                = 4;    /* 长度字段字节数 1~4 */
-            QByteArray magic                ;       /* 帧头魔术字，FrameFlag::Magic 打开时才生效 */
-            FrameFlag frame_flags           = FrameFlag::None; /* 帧功能位图，见 FrameFlag */
-            QByteArray version              ;       /* 版本原始字节，如 {1,0,1}，长度即占用的字节数 */
-            QByteArray tag                  ;       /* 自定义标签原始字节，FrameFlag::Tag 时随头部携带 */
-            bool    version_strict          = false;/* 版本不匹配时：true 断开重连，false 只告警 */
-            bool    tag_strict              = false;/* 标签不匹配时：true 断开重连，false 只告警 */
-            CrcKind crc_kind                = CrcKind::None; /* 校验算法，占几字节由算法决定 */
-            quint8  max_bad_frames          = 3;    /* 连续多少帧异常后强制断开重连 */
-            quint16 bad_frame_window_ms     = 10000;/* 坏帧计数的时间窗，超过这么久没有新坏帧就重新计数；0 = 只按连续计数 */
+            /** @brief 头部总长，含 magic 与长度字段 */
+            qint8   head_length              = 4;
+            /** @brief 长度字段字节数 1~4 */
+            quint8  len_size                = 4;
+            /** @brief 帧头魔术字，FrameFlag::Magic 打开时才生效 */
+            QByteArray magic                ;
+            /** @brief 帧功能位图，见 FrameFlag */
+            FrameFlag frame_flags           = FrameFlag::None;
+            /** @brief 版本原始字节，如 {1,0,1}，长度即占用的字节数 */
+            QByteArray version              ;
+            /** @brief 自定义标签原始字节，FrameFlag::Tag 时随头部携带 */
+            QByteArray tag                  ;
+            /** @brief 版本不匹配时：true 断开重连，false 只告警 */
+            bool    version_strict          = false;
+            /** @brief 标签不匹配时：true 断开重连，false 只告警 */
+            bool    tag_strict              = false;
+            /** @brief 校验算法，占几字节由算法决定 */
+            CrcKind crc_kind                = CrcKind::None;
+            /** @brief 连续多少帧异常后强制断开重连 */
+            quint8  max_bad_frames          = 3;
+            /** @brief 坏帧计数的时间窗，超过这么久没有新坏帧就重新计数；0 = 只按连续计数 */
+            quint16 bad_frame_window_ms     = 10000;
             bool    big_endian              = true;
             quint32 max_package_size        = 4*k1MByte;
 
-            bool       enable_heart        = false;   //是否启用心跳
-            int        heart_interval_ms   = 30000;   //心跳发送间隔，30s 量级；10ms 会把链路刷满
-            QByteArray heart_package       ;          //心跳包内容，打开开关时必须非空
-            int        heart_timeout_ms    = 90000;   //超过这么久没收到任何数据就判定链路已死，通常取 3 个发送周期
+            /** @brief 是否启用心跳 */
+            bool       enable_heart        = false;
+            /** @brief 心跳发送间隔，30s 量级；10ms 会把链路刷满 */
+            int        heart_interval_ms   = 30000;
+            /** @brief 心跳包内容，打开开关时必须非空 */
+            QByteArray heart_package       ;
+            /** @brief 超过这么久没收到任何数据就判定链路已死，通常取 3 个发送周期 */
+            int        heart_timeout_ms    = 90000;
 
-            bool    local_cache_enable      = false;   //断线时只保留最后一帧，重连后补发一次
-            quint32 max_write_buffer        = 4*k1MByte; //本地发送缓冲背压阈值，超过就拒发
+            /** @brief 断线时只保留最后一帧，重连后补发一次 */
+            bool    local_cache_enable      = false;
+            /** @brief 本地发送缓冲背压阈值，超过就拒发 */
+            quint32 max_write_buffer        = 4*k1MByte;
         };
         /**
          * @brief 启动tcp的api 默认不加入构造函数必须主动调用才会启动
@@ -156,47 +176,81 @@ namespace app
         int heartbeat_tick_ms() const;
         Config cfg_;
         QByteArray  pending_;
-        quint8 bad_frame_count_ = 0;   //时间窗内的异常帧计数，正常帧或窗口过期就清零
-        QElapsedTimer bad_frame_timer_; //最近一次异常帧的时刻，用于判断窗口是否过期
+        /** @brief 时间窗内的异常帧计数，正常帧或窗口过期就清零 */
+        quint8 bad_frame_count_ = 0;
+        /** @brief 最近一次异常帧的时刻，用于判断窗口是否过期 */
+        QElapsedTimer bad_frame_timer_;
 
-        //帧格式在 start() 里一次算好，运行时不再读 cfg_
-        QByteArray  magic_;            //生效的魔术字，关闭时为空
-        qsizetype   magic_len_ = 0;    //魔术字字节数
-        qsizetype   head_len_  = 0;    //头部总长（含 magic）
-        qsizetype   len_offset_ = 0;   //长度字段在头部内的偏移
-        qsizetype   len_size_   = 0;   //长度字段字节数 1~4，来自 Config::len_size
-        bool        big_endian_ = true;//长度字段字节序
-        quint32     max_package_ = 0;  //单帧包体上限
-        quint8      max_bad_frames_ = 0;//异常帧次数上限
-        quint16     bad_frame_window_ms_ = 0;//异常帧计数时间窗
-        QByteArray  version_;          //期望的版本字节，未开启时为空
-        qsizetype   version_len_ = 0;  //版本字段字节数
-        qsizetype   version_offset_ = 0;//版本字段在头部内的偏移
-        bool        version_strict_ = false;//版本不匹配时是否直接断开
-        QByteArray  tag_;              //期望的标签字节，未开启时为空
-        qsizetype   tag_len_ = 0;      //标签字段字节数
-        qsizetype   tag_offset_ = 0;   //标签字段在头部内的偏移
-        bool        tag_strict_ = false;//标签不匹配时是否直接断开
-        bool        has_type_ = false; //是否带消息类型字段
-        qsizetype   type_offset_ = 0;  //类型字段在头部内的偏移
-        CrcKind     crc_kind_   = CrcKind::None;//生效的校验算法
-        qsizetype   crc_width_  = 0;    //校验字段字节数
-        qsizetype   crc_offset_ = 0;    //校验字段在帧内的偏移
+        /** @note 帧格式在 start() 里一次算好，运行时不再读 cfg_ */
+
+        /** @brief 生效的魔术字，关闭时为空 */
+        QByteArray  magic_;
+        /** @brief 魔术字字节数 */
+        qsizetype   magic_len_ = 0;
+        /** @brief 头部总长（含 magic） */
+        qsizetype   head_len_  = 0;
+        /** @brief 长度字段在头部内的偏移 */
+        qsizetype   len_offset_ = 0;
+        /** @brief 长度字段字节数 1~4，来自 Config::len_size */
+        qsizetype   len_size_   = 0;
+        /** @brief 长度字段字节序 */
+        bool        big_endian_ = true;
+        /** @brief 单帧包体上限 */
+        quint32     max_package_ = 0;
+        /** @brief 异常帧次数上限 */
+        quint8      max_bad_frames_ = 0;
+        /** @brief 异常帧计数时间窗 */
+        quint16     bad_frame_window_ms_ = 0;
+        /** @brief 期望的版本字节，未开启时为空 */
+        QByteArray  version_;
+        /** @brief 版本字段字节数 */
+        qsizetype   version_len_ = 0;
+        /** @brief 版本字段在头部内的偏移 */
+        qsizetype   version_offset_ = 0;
+        /** @brief 版本不匹配时是否直接断开 */
+        bool        version_strict_ = false;
+        /** @brief 期望的标签字节，未开启时为空 */
+        QByteArray  tag_;
+        /** @brief 标签字段字节数 */
+        qsizetype   tag_len_ = 0;
+        /** @brief 标签字段在头部内的偏移 */
+        qsizetype   tag_offset_ = 0;
+        /** @brief 标签不匹配时是否直接断开 */
+        bool        tag_strict_ = false;
+        /** @brief 是否带消息类型字段 */
+        bool        has_type_ = false;
+        /** @brief 类型字段在头部内的偏移 */
+        qsizetype   type_offset_ = 0;
+        /** @brief 生效的校验算法 */
+        CrcKind     crc_kind_   = CrcKind::None;
+        /** @brief 校验字段字节数 */
+        qsizetype   crc_width_  = 0;
+        /** @brief 校验字段在帧内的偏移 */
+        qsizetype   crc_offset_ = 0;
         bool started_ = false;
         std::unique_ptr<QTcpSocket> client_;
         std::unique_ptr<QHostAddress> host_;
-        QByteArray local_cache_frame_;     //发送方向只缓存最后一帧，不做队列
+        /** @brief 发送方向只缓存最后一帧，不做队列 */
+        QByteArray local_cache_frame_;
         bool has_local_cache_frame_ = false;
         bool stop_down_             = false;
-        std::unique_ptr<QTimer> stop_timer_;      //stop() 之后的挥手超时兜底
-        std::unique_ptr<QTimer> heart_timer_;     //心跳发送与超时判定共用
-        QElapsedTimer last_tx_;                   //最近一次成功写出的时刻
-        QElapsedTimer last_rx_;                   //最近一次收到合法帧的时刻
-        QByteArray heart_package_;                //冻结后的心跳帧（完整帧）
-        int  heart_interval_ms_ = 0;              //心跳发送间隔
-        int  heart_timeout_ms_  = 0;              //多久没收到数据判死
+        /** @brief stop() 之后的挥手超时兜底 */
+        std::unique_ptr<QTimer> stop_timer_;
+        /** @brief 心跳发送与超时判定共用 */
+        std::unique_ptr<QTimer> heart_timer_;
+        /** @brief 最近一次成功写出的时刻 */
+        QElapsedTimer last_tx_;
+        /** @brief 最近一次收到合法帧的时刻 */
+        QElapsedTimer last_rx_;
+        /** @brief 冻结后的心跳帧（完整帧） */
+        QByteArray heart_package_;
+        /** @brief 心跳发送间隔 */
+        int  heart_interval_ms_ = 0;
+        /** @brief 多久没收到数据判死 */
+        int  heart_timeout_ms_  = 0;
         bool heart_enabled_     = false;
-        bool heart_paused_      = false;          //运行时暂停：不发心跳也不判死
+        /** @brief 运行时暂停：不发心跳也不判死 */
+        bool heart_paused_      = false;
     protected:
         /** @brief 重连定时器到点：重新发起连接（基类共用调度调用） */
         void do_reconnect() override;

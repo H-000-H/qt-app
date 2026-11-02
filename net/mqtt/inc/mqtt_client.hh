@@ -17,14 +17,19 @@ namespace app
     public:
         struct Config : StreamConfig
         {
-            QString clientId        = "";          //空则用uuid自动生成
-            QString username        = "";          //可为空(看情况)
+            /** @brief 空则用uuid自动生成 */
+            QString clientId        = "";
+            /** @brief 可为空(看情况) */
+            QString username        = "";
             QString password        = "";
-            QString topic_prefix    = "h-000-h";   //前缀主题
+            /** @brief 前缀主题 */
+            QString topic_prefix    = "h-000-h";
             quint16 keep_alive      = 30;
             QByteArray will_msg     = "{\"status\":\"off\"}";
-            QString    will_subtopic = "will";     //最终主题 = topic_prefix + "/" + 该值
-            quint16   max_pending   = 16;          //断线期间最多缓存多少个不同主题，0 表示不缓存直接丢
+            /** @brief 最终主题 = topic_prefix + "/" + 该值 */
+            QString    will_subtopic = "will";
+            /** @brief 断线期间最多缓存多少个不同主题，0 表示不缓存直接丢 */
+            quint16   max_pending   = 16;
             bool    clean_session   = true;
             bool    auto_keep_alive = true;
             bool    will_retain     = true;
@@ -175,14 +180,18 @@ namespace app
             QByteArray payload;
             quint8     qos       = 1;
             bool       retain    = false;
-            QDateTime  queued_at;   //入队时间，补发时用它算延迟
+            /** @brief 入队时间，补发时用它算延迟 */
+            QDateTime  queued_at;
         };
         std::unique_ptr<QMqttClient> client_ = nullptr;
         Config      cfg_;
         std::unique_ptr<QTimer>   stop_timer_      = nullptr;
-        QHash<QString, quint8>    subscriptions_;   //主题 -> qos，重连后重放
-        QHash<QString, Pending>   pending_;         //断线待发：主题 -> 最新一条，同主题覆盖
-        quint64     resent_total_ = 0;              //累计自动补发成功条数
+        /** @brief 主题 -> qos，重连后重放 */
+        QHash<QString, quint8>    subscriptions_;
+        /** @brief 断线待发：主题 -> 最新一条，同主题覆盖 */
+        QHash<QString, Pending>   pending_;
+        /** @brief 累计自动补发成功条数 */
+        quint64     resent_total_ = 0;
         bool        started_    = false;
         bool        stopping_   = false;
         bool        stop_done_  = false;
