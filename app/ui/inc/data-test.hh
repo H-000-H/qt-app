@@ -1,9 +1,10 @@
 #include "data-view.hh"
+#include <qcontainerfwd.h>
 namespace app
 {
     struct SensorRecord
     {
-        qint64 timestamp;
+        QString timestamp;
         double temp;
         double hum;
         QString status;

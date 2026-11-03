@@ -4,7 +4,7 @@
 #pragma once
 #include <qabstractitemmodel.h>
 #include <qcontainerfwd.h>
-#include <qdatetime.h>
+
 #include <qdebug.h>
 #include <qhashfunctions.h>
 #include <qnamespace.h>
@@ -147,8 +147,9 @@ namespace app
         //  采集端写入
         /**
          * @brief 打开视图部件：套用配置，建出表格视图并显示
-         * @return false 表示视图最终没显示出来（没有 QApplication，或父部件本身不可见）
-         * @note 重复调用只更新配置并复用同一个视图，不会开出第二个窗口
+         * @return false 表示视图没打开（还没构造成功）
+         * @note 重复调用只更新配置并复用同一个视图，不会开出第二个窗口；
+         *       close/hide 过之后再调本函数会把同一个视图重新显示出来
          * @note cfg.parent / cfg.title 只在第一次打开时生效
          * @note 带 Config 的构造已经在内部调过本函数，只有空构造才需要手动 open
          */
@@ -170,14 +171,47 @@ namespace app
                 view_->setWindowTitle(cfg.title);
                 view_->setModel(this);
                 view_->resize(640, 240);
+                // 退出时机归上层决定
+                view_->setAttribute(Qt::WA_QuitOnClose, false);
             }
             view_->show();
-            return view_->isVisible();
+            return is_open();
+        }
+
+        /**
+         * @brief 关闭视图：窗口收掉，视图对象留着，再 open 复用同一个
+         * @return false 表示还没 open 过
+         */
+        bool close()
+        {
+            if(!view_)
+                return false;
+            return view_->close();
+        }
+
+        /**
+         * @brief 隐藏视图：只是看不见，不发关闭事件
+         * @return false 表示还没 open 过
+         */
+        bool hide()
+        {
+            if(!view_)
+                return false;
+            view_->hide();
+            return true;
+        }
+
+        /**
+         * @brief 视图当前是否处于打开状态
+         * @note 只看视图自己有没有被 close/hide，挂在父部件下时父部件被藏起来不算
+         */
+        bool is_open() const
+        {
+            return view_ && !view_->isHidden();
         }
 
         /**
          * @brief 各字段名，下标即列号，供导出当表头用
-         * @note 表头直接问 headerData，避免和视图看到的字段名各写一份
          */
         QStringList headers() const
         {

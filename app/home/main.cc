@@ -2,6 +2,8 @@
 #include "data-test.hh"
 #include <qapplication.h>
 #include <qdatetime.h>
+#include <qobject.h>
+#include <qtimer.h>
 int main(int argc, char *argv[])
 {
     QApplication app(argc,argv);
@@ -15,8 +17,12 @@ int main(int argc, char *argv[])
     demo_data.hum =1.09;
     demo_data.status = "ok";
     demo_data.temp = 23.999;
-    demo_data.timestamp = QDateTime::currentSecsSinceEpoch();
-    data.write(demo_data);
+    demo_data.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
 
+    auto timer = new QTimer;
+    timer->singleShot(2000,[&]()
+        {
+            data.write(demo_data);
+        });
     return app.exec();
 }
