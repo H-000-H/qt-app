@@ -21,13 +21,16 @@ find_package(Qt6 REQUIRED COMPONENTS
 add_subdirectory(console)
 add_subdirectory(file-write)
 add_subdirectory(net)
+add_subdirectory(ui/chart)
+# 第二个参数把子目录的构建产物放到 app_build/，否则会和可执行文件 app 抢 build/app 这个路径
+add_subdirectory(app app_build)
 
 set(SRC
-  ${CMAKE_CURRENT_SOURCE_DIR}/main/main.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/app/home/main.cc
 )
 
 set(INC
-  ${CMAKE_CURRENT_SOURCE_DIR}/main/
+
 )
 
 set(HEADS
@@ -43,6 +46,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   ${INC}
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE
+  app_component
+  chart_component
   file_component
   net_component
   console_component
