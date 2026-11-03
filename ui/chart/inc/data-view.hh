@@ -270,6 +270,28 @@ namespace app
 
         //  导出
         /**
+         * @brief 只取最后写入的那条记录，拼成一行
+         * @param[out] line 字段已按 cfg_.separator 分好并转义
+         * @retval false 代表表里还没有数据
+         * @note 按记录取而不按表行取，所以 Vertical 时它是最右一列的字段，不是最后一行
+         */
+        bool export_last_line(QString &line) const
+        {
+            if(data_store_.isEmpty())
+                return false;
+
+            const ElementData &latest = data_store_.last();
+            QStringList fields;
+            fields.reserve(ElementData::chart_column_count);
+            for(int col = 0; col < ElementData::chart_column_count; ++col)
+            {
+                fields << quote(latest.chart_column(col).toString(), cfg_.separator);
+            }
+            line = fields.join(cfg_.separator);
+            return true;
+        }
+
+        /**
          * @brief 把表里的数据拼成文本，一行对应表里的一行
          * @param[out] export_data 每行的字段已按 cfg_.separator 分好并转义
          * @retval false 代表根本没有数据
