@@ -8,18 +8,26 @@ set(CHART_COMPONENT_HEADS
     ${CMAKE_CURRENT_SOURCE_DIR}/inc/data-view.hh
 )
 
-# 纯模板头文件，没有 .cc，所以是 INTERFACE 库：不产出 .a，只向使用者传递头文件路径和 Qt 依赖
-add_library(${CHART_COMPONENT_NAME} INTERFACE)
-
-target_include_directories(${CHART_COMPONENT_NAME} INTERFACE
-    ${CHART_COMPONENT_INC}
+set(CHART_COMPONENT_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/data-view.cc
 )
 
-target_sources(${CHART_COMPONENT_NAME} INTERFACE
+# 模板实现全在头文件里；src/data-view.cc 只负责把本目录编译条目送进 compile_commands.json
+add_library(${CHART_COMPONENT_NAME} STATIC
+    ${CHART_COMPONENT_SRC}
     ${CHART_COMPONENT_HEADS}
 )
 
-target_link_libraries(${CHART_COMPONENT_NAME} INTERFACE
+set_target_properties(${CHART_COMPONENT_NAME} PROPERTIES
+    AUTOMOC ON
+    POSITION_INDEPENDENT_CODE ON
+)
+
+target_include_directories(${CHART_COMPONENT_NAME} PUBLIC
+    ${CHART_COMPONENT_INC}
+)
+
+target_link_libraries(${CHART_COMPONENT_NAME} PUBLIC
     Qt6::Core
     Qt6::Widgets
 )
