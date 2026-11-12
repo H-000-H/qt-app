@@ -1,8 +1,8 @@
 #include "csv-export.hh"
 #include "data-view.hh"
 #include "data-test.hh"
+#include "log.hh"
 #include "tcp_client.hh"
-#include <cstdint>
 #include <qapplication.h>
 #include <qdatetime.h>
 #include <qdir.h>
@@ -10,8 +10,10 @@
 #include <qstring.h>
 #include <qstringview.h>
 #include <qtimer.h>
+
 int main(int argc, char *argv[])
 {
+    app::log::install();
     QApplication app(argc,argv);
     app::Chart<app::SensorRecord>::Config cfg;
     cfg.title = "传感器记录";

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 set(PROJECT_NAME app)
 project(${PROJECT_NAME} LANGUAGES CXX C)
+# 让 qWarning() 等日志保留文件/行号上下文，Release 下也能打印
+add_compile_definitions(QT_MESSAGELOGCONTEXT)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,12 +23,13 @@ find_package(Qt6 REQUIRED COMPONENTS
 add_subdirectory(console)
 add_subdirectory(file-write)
 add_subdirectory(net)
+add_subdirectory(common)
 add_subdirectory(ui/chart)
 # 第二个参数把子目录的构建产物放到 app_build/，否则会和可执行文件 app 抢 build/app 这个路径
 add_subdirectory(app app_build)
 
 set(SRC
-  ${CMAKE_CURRENT_SOURCE_DIR}/app/home/main.cc
+  ${CMAKE_CURRENT_SOURCE_DIR}/app/net/main.cc
 )
 
 set(INC
@@ -51,6 +54,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   file_component
   net_component
   console_component
+  log_component
   Qt6::Core
   Qt6::Widgets
   Qt6::Charts

@@ -4,7 +4,6 @@
 #include <qabstracteventdispatcher.h>
 #include <qabstractsocket.h>
 #include <qcontainerfwd.h>
-#include <qdatetime.h>
 #include <qendian.h>
 #include <qeventloop.h>
 #include <qlogging.h>
@@ -276,9 +275,7 @@ namespace app
             stop_timer_->stop();
             stop_timeout();//建链失败落到这里，超时定时器必须一起停
             heart_timer_->stop();
-            qInfo().noquote() << QStringLiteral("[tcp] close %1")
-                                    .arg(QDateTime::currentDateTime()
-                                    .toString(Qt::ISODate));
+            qInfo().noquote() << "[tcp] close";
             emit disconnected();
 
             if(stop_down_)//主动 stop，不再重连
@@ -302,8 +299,7 @@ namespace app
 
         case QAbstractSocket::SocketState::HostLookupState:
         {
-            qInfo().noquote() << QStringLiteral("[tcp] host lookup ... %1")
-                .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[tcp] host lookup ...";
             emit domain_name_resolution();//余名解析传递到这里如果解析失败可以在内部加逻辑
             break;
         }
@@ -311,15 +307,13 @@ namespace app
         case QAbstractSocket::SocketState::ConnectingState:
         {
             //这个就是纯粹的过度态只写一句话
-            qInfo().noquote() << QStringLiteral("[tcp] connecting ... %1")
-                                .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[tcp] connecting ...";
             break;
         }
 
         case QAbstractSocket::SocketState::ConnectedState:
         {
-            qInfo().noquote() << QStringLiteral("[tcp] connected %1, local %2:%3")
-                                    .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+            qInfo().noquote() << QStringLiteral("[tcp] connected, local %1:%2")
                                     .arg(client_->localAddress().toString())
                                     .arg(client_->localPort());
             reset_retry();//连上就清零，下次掉线重新按次数算
@@ -340,8 +334,7 @@ namespace app
         {
             //纯过渡态：只有我们自己调 disconnectFromHost 且还有待发数据时才会进这里，
             //兜底定时器在 stop() 里已经起过了，这里什么都不用做，等它自动迁到 Unconnected就可以了
-            qInfo().noquote() << QStringLiteral("[tcp] closing ... %1")
-                .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[tcp] closing ...";
             break;
         }
 
@@ -539,8 +532,7 @@ namespace app
     {
         if (err == QAbstractSocket::RemoteHostClosedError)
             return;
-        const QString msg = QStringLiteral("[tcp] %1 err_reason :%2 (%3)")
-                                .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+        const QString msg = QStringLiteral("[tcp] err_reason :%1 (%2)")
                                 .arg(detail::socket_error_name(err))
                                 .arg(client_->errorString());
         qWarning().noquote() << msg;

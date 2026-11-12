@@ -131,8 +131,7 @@ namespace app
             return;
 
         const QDateTime now = QDateTime::currentDateTime();
-        qInfo().noquote() << QStringLiteral("[mqtt] flush start %1, %2 topic(s)")
-                                 .arg(now.toString(Qt::ISODateWithMs))
+        qInfo().noquote() << QStringLiteral("[mqtt] flush start, %1 topic(s)")
                                  .arg(pending_.size());
 
         const qint64 total = pending_.size();
@@ -146,9 +145,8 @@ namespace app
                 qWarning().noquote() << "[mqtt] flush failed, keep" << pending_.size() << "topic(s)";
                 break;
             }
-            qInfo().noquote() << QStringLiteral("[mqtt] resent %1 at %2, queued %3 (%4 ms ago), qos=%5 retain=%6")
+            qInfo().noquote() << QStringLiteral("[mqtt] resent %1, queued %2 (%3 ms ago), qos=%4 retain=%5")
                                      .arg(msg.topic)
-                                     .arg(now.toString(Qt::ISODateWithMs))
                                      .arg(msg.queued_at.toString(Qt::ISODateWithMs))
                                      .arg(msg.queued_at.msecsTo(now))
                                      .arg(msg.qos)
@@ -246,10 +244,9 @@ namespace app
         if (err == QMqttClient::NoError)
             return;
 
-        const QString msg = QStringLiteral("time :%1 , err_reason :%2")
-                                .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+        const QString msg = QStringLiteral("[mqtt] err_reason :%1")
                                 .arg(detail::mqtt_error_name(err));
-        qWarning().noquote()<<msg<<'\n';
+        qWarning().noquote()<<msg;
 
         emit error_occurred(msg);
     }
@@ -295,9 +292,7 @@ namespace app
         case QMqttClient::ClientState::Connected:
             reset_retry();
             stop_timeout();//已连上，建链超时不能再留着
-            qInfo().noquote() << QStringLiteral("[mqtt] connected %1")
-                                    .arg(QDateTime::currentDateTime()
-                                    .toString(Qt::ISODate));
+            qInfo().noquote() << "[mqtt] connected";
             resubscribe_all();//clean_session=true 时重连后订阅全丢，靠本地表重放
             flush_pending();//订阅恢复后再补发断线期间缓存的消息，避免对端漏收
             emit connected();
@@ -403,8 +398,7 @@ namespace app
         const qint32 id = client_->publish(topic, payload, qos, retain);
         if(id < 0)
         {
-            qWarning().noquote() << "[mqtt] publish failed, topic =" << topic
-                                 << "time =" << QDateTime::currentDateTime().toString(Qt::ISODate);
+            qWarning().noquote() << "[mqtt] publish failed, topic =" << topic;
             return false;
         }
         return true;

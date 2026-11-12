@@ -4,6 +4,7 @@ set(NET_COMPONENT_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/mqtt/src/mqtt_client.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tcp/src/tcp_client.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/udp/src/udp-client.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/http/src/http-client.cc
 )
 
 set(NET_COMPONENT_INC
@@ -11,6 +12,7 @@ set(NET_COMPONENT_INC
     ${CMAKE_CURRENT_SOURCE_DIR}/mqtt/inc/
     ${CMAKE_CURRENT_SOURCE_DIR}/tcp/inc/
     ${CMAKE_CURRENT_SOURCE_DIR}/udp/inc/
+    ${CMAKE_CURRENT_SOURCE_DIR}/http/inc/
 )
 
 set(NET_COMPONENT_HEADS
@@ -19,6 +21,7 @@ set(NET_COMPONENT_HEADS
     ${CMAKE_CURRENT_SOURCE_DIR}/mqtt/inc/mqtt_client.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/tcp/inc/tcp_client.hh
     ${CMAKE_CURRENT_SOURCE_DIR}/udp/inc/udp-client.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/http/inc/http-client.hh
 )
 
 # 创建目标；AUTOMOC 由顶层继承

@@ -4,11 +4,10 @@
 #include <memory>
 #include <qabstractsocket.h>
 #include <utility>
-#include <qdatetime.h>
 #include <qeventloop.h>
 #include <qnetworkdatagram.h>
 #include <qobject.h>
-#include <QDateTime>
+#include <qvariant.h>
 #include <qtimer.h>
 #include <qudpsocket.h>
 namespace app
@@ -225,8 +224,7 @@ namespace app
     {
         if (err == QAbstractSocket::RemoteHostClosedError)
             return;
-        const QString msg = QStringLiteral("[udp] %1 err_reason :%2 (%3)")
-                                .arg(QDateTime::currentDateTime().toString(Qt::ISODate))
+        const QString msg = QStringLiteral("[udp] err_reason :%1 (%2)")
                                 .arg(detail::socket_error_name(err))
                                 .arg(client_->errorString());
         qWarning().noquote() << msg;
@@ -255,8 +253,7 @@ namespace app
         case QAbstractSocket::SocketState::UnconnectedState:
         {
             stop_timeout();
-            qInfo().noquote() << QStringLiteral("[udp] close %1")
-                                    .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[udp] close";
             emit disconnected();
 
             if(stop_down_)//主动 stop，不再重连
@@ -279,8 +276,7 @@ namespace app
         }
         case QAbstractSocket::SocketState::HostLookupState:
         {
-            qInfo().noquote() << QStringLiteral("[udp] host lookup ... %1")
-                                    .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[udp] host lookup ...";
             break;
         }
         case QAbstractSocket::SocketState::BoundState:
@@ -294,8 +290,7 @@ namespace app
         }
         case QAbstractSocket::SocketState::ConnectingState:
         {
-            qInfo().noquote() << QStringLiteral("[udp] connecting ... %1")
-                                    .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[udp] connecting ...";
             break;
         }
         case QAbstractSocket::SocketState::ConnectedState:
@@ -308,8 +303,7 @@ namespace app
         }
         case QAbstractSocket::SocketState::ClosingState:
         {
-            qInfo().noquote() << QStringLiteral("[udp] closing ... %1")
-                                    .arg(QDateTime::currentDateTime().toString(Qt::ISODate));
+            qInfo().noquote() << "[udp] closing ...";
             break;
         }
         default:
