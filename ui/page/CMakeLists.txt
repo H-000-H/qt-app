@@ -1,0 +1,32 @@
+set(PAGE_COMPONENT_NAME page_component)
+
+set(PAGE_COMPONENT_INC
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/
+)
+
+set(PAGE_COMPONENT_HEADS
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/page.hh
+)
+
+set(PAGE_COMPONENT_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/page.cc
+)
+
+add_library(${PAGE_COMPONENT_NAME} STATIC
+    ${PAGE_COMPONENT_SRC}
+    ${PAGE_COMPONENT_HEADS}
+)
+
+set_target_properties(${PAGE_COMPONENT_NAME} PROPERTIES
+    AUTOMOC ON
+    POSITION_INDEPENDENT_CODE ON
+)
+
+target_include_directories(${PAGE_COMPONENT_NAME} PUBLIC
+    ${PAGE_COMPONENT_INC}
+)
+
+target_link_libraries(${PAGE_COMPONENT_NAME} PUBLIC
+    Qt6::Core
+    Qt6::Widgets
+)

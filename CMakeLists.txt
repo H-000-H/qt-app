@@ -25,6 +25,7 @@ add_subdirectory(file-write)
 add_subdirectory(net)
 add_subdirectory(common)
 add_subdirectory(ui/chart)
+add_subdirectory(ui/page)
 # 第二个参数把子目录的构建产物放到 app_build/，否则会和可执行文件 app 抢 build/app 这个路径
 add_subdirectory(app app_build)
 
@@ -51,6 +52,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME} PRIVATE
   app_component
   chart_component
+  page_component
   file_component
   net_component
   console_component

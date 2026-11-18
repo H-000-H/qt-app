@@ -75,5 +75,7 @@ namespace app
         /** @brief 在途请求，stop()/析构时统一取消 */
         QSet<QNetworkReply *>                   inflight_;
         Config                                  cfg_;
+        bool                                    is_open_ = false;
+        bool                                    is_stop_ = false;
     };
 }

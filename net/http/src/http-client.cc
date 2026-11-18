@@ -23,7 +23,8 @@ namespace app
     HttpClient::~HttpClient()
     {
         QObject::disconnect(client_.get(), nullptr, this, nullptr);
-        stop();
+        if(is_open_ && !is_stop_)
+            stop();
     }
 
     void HttpClient::wire_client()
@@ -83,6 +84,11 @@ namespace app
 
     bool HttpClient::open(const Config &cfg)
     {
+        if(is_open_)
+        {
+            qWarning().noquote() << log_tag() << "already open";
+            return false;
+        }
         cfg_ = cfg;
 
         if (cfg_.host.isEmpty())
@@ -90,7 +96,8 @@ namespace app
             qWarning().noquote() << log_tag() << "invalid endpoint" << cfg_.host << cfg_.port;
             return false;
         }
-
+        is_open_ = true;
+        is_stop_ = false;
         QUrl url;
         url.setScheme(cfg_.tls ? QStringLiteral("https") : QStringLiteral("http"));
         url.setHost(cfg_.host);
@@ -141,12 +148,18 @@ namespace app
 
     bool HttpClient::stop()
     {
+        if(is_stop_)
+        {
+            qWarning().noquote() << log_tag() << "already stop";
+            return false;
+        }
         // abort 会同步触发 finished，先拷贝一份避免遍历时集合被修改
         const auto pending = inflight_;
         inflight_.clear();
         for (QNetworkReply *reply : pending)
             reply->abort();
-
+        is_stop_ = true;
+        is_open_ = false;
         qInfo().noquote() << log_tag() << "stopped";
         return true;
     }
