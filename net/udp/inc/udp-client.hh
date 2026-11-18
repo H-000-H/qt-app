@@ -74,7 +74,7 @@ namespace app
         void apply_recv_buffer();
 
         std::queue<QByteArray>        pending_;
-        std::unique_ptr<QUdpSocket>   client_;
+        QUdpSocket                   *client_ = nullptr;
         std::unique_ptr<QHostAddress> host_;
         Config                        cfg_;
         bool                          started_             = false;

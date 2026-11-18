@@ -19,7 +19,7 @@ namespace app
 
     TcpClient::TcpClient(QObject *parent):QObject(parent)
     {
-        client_             = std::make_unique<QTcpSocket>(this);
+        client_             = new QTcpSocket(this);
         stop_timer_         = std::make_unique<QTimer>();
         stop_timer_->setSingleShot(true);
         host_               = std::make_unique<QHostAddress>();//不带qobject
@@ -38,9 +38,9 @@ namespace app
                             });
 
         //心跳：同一个定时器既负责发心跳，也负责判链路是否已经死了
-        heart_timer_ = std::make_unique<QTimer>(this);
+        heart_timer_ = new QTimer(this);
         heart_timer_->setTimerType(Qt::CoarseTimer);
-        QObject::connect(heart_timer_.get(), &QTimer::timeout, this, &TcpClient::heartbeat_tick);
+        QObject::connect(heart_timer_, &QTimer::timeout, this, &TcpClient::heartbeat_tick);
     }
 
     TcpClient::~TcpClient()
@@ -50,24 +50,24 @@ namespace app
 
         //析构阶段事件循环不再转，disconnectFromHost 的挥手发不出去，
         //这里直接 abort：同步关闭
-        QObject::disconnect(client_.get(), nullptr, this, nullptr);
+        QObject::disconnect(client_, nullptr, this, nullptr);
         if(client_->state() != QAbstractSocket::UnconnectedState)
             client_->abort();
     }
 
     void TcpClient::wire_client()
     {
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QTcpSocket::stateChanged,
                             this,
                             &TcpClient::on_state_changed);
 
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QTcpSocket::readyRead,
                             this,
                             &TcpClient::on_read);
 
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QTcpSocket::errorOccurred,
                             this,
                             &TcpClient::on_err);

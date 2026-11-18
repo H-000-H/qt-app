@@ -18,7 +18,7 @@ namespace app
 
     UdpClient::UdpClient(QObject *parent):QObject(parent)
     {
-        client_             = std::make_unique<QUdpSocket>(this);
+        client_             = new QUdpSocket(this);
         host_               = std::make_unique<QHostAddress>();
         init_reconnect_timer(this);//重连定时器由基类创建，到点回调 do_reconnect()
         init_timeout_timer(this);//建链超时定时器由基类创建，到点回调 on_timeout()
@@ -29,7 +29,7 @@ namespace app
     {
         if(!client_)
             return;
-        QObject::disconnect(client_.get(),nullptr,this,nullptr);
+        QObject::disconnect(client_,nullptr,this,nullptr);
         if(client_->state() != QAbstractSocket::UnconnectedState)
             client_->abort();
     }
@@ -160,16 +160,16 @@ namespace app
 
     void UdpClient::wire_client()
     {
-        QObject::connect(client_.get(),
+        QObject::connect(client_,
                         &QUdpSocket::stateChanged,
                         this,
                         &UdpClient::on_state_changed);
 
-        QObject::connect(client_.get(),
+        QObject::connect(client_,
                         &QUdpSocket::errorOccurred,
                         this,
                         &UdpClient::on_err);
-        QObject::connect(client_.get(),
+        QObject::connect(client_,
                         &QUdpSocket::readyRead,
                         this,
                         &UdpClient::on_read);

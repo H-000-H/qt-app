@@ -68,8 +68,8 @@ namespace app
             bool       ok   = false;     /* 是否无传输错误 */
         };
         void wire_client();
-        std::unique_ptr<QNetworkAccessManager>  client_;
-        std::unique_ptr<QNetworkRequest >       req_;
+        QNetworkAccessManager                 *client_ = nullptr;
+        std::unique_ptr<QNetworkRequest >      req_;
         /** @brief 最近几条响应，容量由 cfg_.recv_hold_buf_size 控制 */
         QVector<Reply>                          replies_;
         /** @brief 在途请求，stop()/析构时统一取消 */

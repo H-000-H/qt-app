@@ -6,8 +6,8 @@ namespace app
 {
     Serial::Serial(QObject *parent):QObject(parent)
     {
-        port_ = std::make_unique<QSerialPort>(this);
-        QObject::connect(port_.get(), &QSerialPort::errorOccurred, this, &Serial::on_err);
+        port_ = new QSerialPort(this);
+        QObject::connect(port_, &QSerialPort::errorOccurred, this, &Serial::on_err);
     }
 
     Serial::~Serial() = default;

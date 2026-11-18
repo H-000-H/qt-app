@@ -42,23 +42,23 @@ namespace app
         //这里不发 disconnected_permanently 信号
         if (client_ && client_->state() != QMqttClient::Disconnected)
         {
-            QObject::disconnect(client_.get(), nullptr, this, nullptr);
+            QObject::disconnect(client_, nullptr, this, nullptr);
             client_->disconnectFromHost();
         }
     }
 
     MqttClient::MqttClient(QObject*parent):QObject(parent)
     {
-        client_             = std::make_unique<QMqttClient>(this);
+        client_             = new QMqttClient(this);
         init_reconnect_timer(this);//重连定时器由基类创建，到点回调 do_reconnect()
         init_timeout_timer(this);//建链超时定时器由基类创建，到点回调 on_timeout()
-        stop_timer_         = std::make_unique<QTimer>(this);
+        stop_timer_         = new QTimer(this);
         stop_timer_->setSingleShot(true);
 
         wire_client();
 
         //stop 超时保护：disconnectFromHost 后迟迟等不到 Disconnected（如半开连接），重建 client_ 关掉 socket 再收尾
-        QObject::connect(   stop_timer_.get(),
+        QObject::connect(   stop_timer_,
                             &QTimer::timeout,
                             this,
                             [this]()
@@ -71,17 +71,17 @@ namespace app
 
     void MqttClient::wire_client()
     {
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QMqttClient::stateChanged,
                             this,
                             &MqttClient::on_state_changed);
 
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QMqttClient::errorChanged,
                             this,
                             &MqttClient::on_err);
 
-        QObject::connect(   client_.get(),
+        QObject::connect(   client_,
                             &QMqttClient::messageReceived,
                             this,
                             &MqttClient::on_message);
@@ -92,13 +92,14 @@ namespace app
         //disconnectFromHost 没能改变状态时，旧对象内部仍持有未关闭的 socket 和收发缓冲。
         //这里可能正处在它自己的信号回调里，直接析构会踩到已释放内存，交给 deleteLater；
         //订阅表 subscriptions_ 保留，下次连上由 resubscribe_all 重放
-        if (QMqttClient *old = client_.release())
+        QMqttClient *old = client_;
+        client_ = nullptr;
+        if (old != nullptr)
         {
-            //先摘掉旧对象的信号：deleteLater 真正执行前它还可能发 stateChanged，
             QObject::disconnect(old, nullptr, this, nullptr);
             old->deleteLater();
         }
-        client_ = std::make_unique<QMqttClient>(this);
+        client_ = new QMqttClient(this);
         wire_client();
     }
 

@@ -6,53 +6,90 @@
 
 namespace app::ui::base
 {
-    PageBase::PageBase(LayoutMode mode, QWidget *parent)
-        : QWidget(parent), layout_mode_(mode)
+    PageBase::PageBase(Region regions, LayoutMode mode, QWidget *parent)
+        : QWidget(parent), layout_mode_(mode), regions_(regions)
     {
-        root_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, this);
+        root_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, this);
         root_layout_->setContentsMargins(8, 8, 8, 8);
         root_layout_->setSpacing(6);
 
-        primary_nav_        = new QWidget(this);
-        primary_nav_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, primary_nav_);
-        primary_nav_layout_->setContentsMargins(0, 0, 0, 0);
+        if (has(Region::TopBar))
+        {
+            top_bar_        = new QWidget(this);
+            top_bar_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, top_bar_);
+            top_bar_layout_->setContentsMargins(0, 0, 0, 0);
+        }
 
-        workspace_        = new QWidget(this);
+        main_pane_        = new QWidget(this);
+        main_layout_      = new QBoxLayout(QBoxLayout::LeftToRight, main_pane_);
+        main_layout_->setContentsMargins(0, 0, 0, 0);
+        main_layout_->setSpacing(6);
+
+        if (has(Region::PrimaryNav))
+        {
+            primary_nav_        = new QWidget(main_pane_);
+            primary_nav_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, primary_nav_);
+            primary_nav_layout_->setContentsMargins(0, 0, 0, 0);
+        }
+
+        workspace_        = new QWidget(main_pane_);
         workspace_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, workspace_);
         workspace_layout_->setContentsMargins(0, 0, 0, 0);
         workspace_layout_->setSpacing(6);
 
-        secondary_nav_        = new QWidget(workspace_);
-        secondary_nav_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, secondary_nav_);
-        secondary_nav_layout_->setContentsMargins(0, 0, 0, 0);
+        if (has(Region::SecondaryNav))
+        {
+            secondary_nav_        = new QWidget(workspace_);
+            secondary_nav_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, secondary_nav_);
+            secondary_nav_layout_->setContentsMargins(0, 0, 0, 0);
+        }
 
         body_pane_        = new QWidget(workspace_);
         body_pane_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, body_pane_);
         body_pane_layout_->setContentsMargins(0, 0, 0, 0);
         body_pane_layout_->setSpacing(6);
 
-        content_        = new QWidget(body_pane_);
-        content_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, content_);
-        content_layout_->setContentsMargins(0, 0, 0, 0);
+        if (has(Region::Content))
+        {
+            content_        = new QWidget(body_pane_);
+            content_layout_ = new QBoxLayout(QBoxLayout::TopToBottom, content_);
+            content_layout_->setContentsMargins(0, 0, 0, 0);
+        }
 
-        footer_        = new QWidget(body_pane_);
-        footer_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, footer_);
-        footer_layout_->setContentsMargins(0, 0, 0, 0);
+        if (has(Region::Footer))
+        {
+            footer_        = new QWidget(body_pane_);
+            footer_layout_ = new QBoxLayout(QBoxLayout::LeftToRight, footer_);
+            footer_layout_->setContentsMargins(0, 0, 0, 0);
+        }
 
         /* 挂载顺序在两种模式下相同，切换模式只改 direction */
-        workspace_layout_->addWidget(secondary_nav_);
+        if (secondary_nav_ != nullptr)
+            workspace_layout_->addWidget(secondary_nav_);
         workspace_layout_->addWidget(body_pane_, 1);
-        body_pane_layout_->addWidget(content_, 1);
-        body_pane_layout_->addWidget(footer_);
-        root_layout_->addWidget(primary_nav_);
-        root_layout_->addWidget(workspace_, 1);
+        if (content_ != nullptr)
+            body_pane_layout_->addWidget(content_, 1);
+        if (footer_ != nullptr)
+            body_pane_layout_->addWidget(footer_);
+        if (primary_nav_ != nullptr)
+            main_layout_->addWidget(primary_nav_);
+        main_layout_->addWidget(workspace_, 1);
+        if (top_bar_ != nullptr)
+            root_layout_->addWidget(top_bar_);
+        root_layout_->addWidget(main_pane_, 1);
 
         /* 未使用的区域默认隐藏：布局跳过隐藏控件，不占尺寸也不占 spacing，
          * 空间自然由相邻区域（content）占用 */
-        primary_nav_->hide();
-        secondary_nav_->hide();
-        content_->hide();
-        footer_->hide();
+        if (top_bar_ != nullptr)
+            top_bar_->hide();
+        if (primary_nav_ != nullptr)
+            primary_nav_->hide();
+        if (secondary_nav_ != nullptr)
+            secondary_nav_->hide();
+        if (content_ != nullptr)
+            content_->hide();
+        if (footer_ != nullptr)
+            footer_->hide();
 
         rebuild_layout();
     }
@@ -71,14 +108,20 @@ namespace app::ui::base
     {
         const bool left_nav = (layout_mode_ == LayoutMode::LeftNavTopTabs);
 
-        root_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
-        primary_nav_layout_->setDirection(left_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
+        root_layout_->setDirection(QBoxLayout::TopToBottom);
+        main_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+        if (primary_nav_layout_ != nullptr)
+            primary_nav_layout_->setDirection(left_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
         workspace_layout_->setDirection(left_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
-        secondary_nav_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+        if (secondary_nav_layout_ != nullptr)
+            secondary_nav_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
     }
 
-    void PageBase::replace_widget(QWidget *&slot, QBoxLayout *layout, QWidget *w, int stretch, Qt::Alignment alignment)
+    void PageBase::replace_widget(QPointer<QWidget> &slot, QBoxLayout *layout, QWidget *w, int stretch, Qt::Alignment alignment)
     {
+        if (layout == nullptr)
+            return; /* 区域未启用：忽略，控件仍归调用方所有 */
+
         QWidget *container = layout->parentWidget();
 
         if (slot == w)
@@ -106,6 +149,11 @@ namespace app::ui::base
         slot = w;
         layout->addWidget(w, stretch, alignment);
         container->show();
+    }
+
+    void PageBase::set_top_bar_widget(QWidget *w, Qt::Alignment alignment)
+    {
+        replace_widget(top_bar_widget_, top_bar_layout_, w, 0, alignment);
     }
 
     void PageBase::set_primary_nav_widget(QWidget *w, Qt::Alignment alignment)

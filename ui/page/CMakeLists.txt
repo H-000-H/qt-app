@@ -1,15 +1,15 @@
 set(PAGE_COMPONENT_NAME page_component)
 
 set(PAGE_COMPONENT_INC
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/
+    ${CMAKE_CURRENT_SOURCE_DIR}/base/
 )
 
 set(PAGE_COMPONENT_HEADS
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/page.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/base/page.hh
 )
 
 set(PAGE_COMPONENT_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/page.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/base/page.cc
 )
 
 add_library(${PAGE_COMPONENT_NAME} STATIC

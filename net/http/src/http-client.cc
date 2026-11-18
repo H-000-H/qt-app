@@ -15,24 +15,24 @@ namespace app
 {
     HttpClient::HttpClient(QObject *parent):QObject(parent)
     {
-        client_ = std::make_unique<QNetworkAccessManager>(this);
+        client_ = new QNetworkAccessManager(this);
         req_    = std::make_unique<QNetworkRequest >();
         wire_client();
     }
 
     HttpClient::~HttpClient()
     {
-        QObject::disconnect(client_.get(), nullptr, this, nullptr);
+        QObject::disconnect(client_, nullptr, this, nullptr);
         if(is_open_ && !is_stop_)
             stop();
     }
 
     void HttpClient::wire_client()
     {
-        QObject::connect(client_.get(), &QNetworkAccessManager::finished,
+        QObject::connect(client_, &QNetworkAccessManager::finished,
                          this, &HttpClient::on_finished);
 
-        QObject::connect(client_.get(),&QNetworkAccessManager::sslErrors,
+        QObject::connect(client_,&QNetworkAccessManager::sslErrors,
                         this,[this](QNetworkReply *reply, const QList<QSslError> &errors)
         {
             Q_UNUSED(reply);

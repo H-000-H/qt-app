@@ -228,7 +228,7 @@ namespace app
         /** @brief 校验字段在帧内的偏移 */
         qsizetype   crc_offset_ = 0;
         bool started_ = false;
-        std::unique_ptr<QTcpSocket> client_;
+        QTcpSocket *client_ = nullptr;
         std::unique_ptr<QHostAddress> host_;
         /** @brief 发送方向只缓存最后一帧，不做队列 */
         QByteArray local_cache_frame_;
@@ -237,7 +237,7 @@ namespace app
         /** @brief stop() 之后的挥手超时兜底 */
         std::unique_ptr<QTimer> stop_timer_;
         /** @brief 心跳发送与超时判定共用 */
-        std::unique_ptr<QTimer> heart_timer_;
+        QTimer *heart_timer_ = nullptr;
         /** @brief 最近一次成功写出的时刻 */
         QElapsedTimer last_tx_;
         /** @brief 最近一次收到合法帧的时刻 */

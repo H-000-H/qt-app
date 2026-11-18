@@ -8,7 +8,6 @@
 #include <QTimer>
 #include <QString>
 #include <QDateTime>
-#include <memory>
 namespace app
 {
     class MqttClient : public QObject, public NetBase
@@ -183,9 +182,9 @@ namespace app
             /** @brief 入队时间，补发时用它算延迟 */
             QDateTime  queued_at;
         };
-        std::unique_ptr<QMqttClient> client_ = nullptr;
+        QMqttClient *client_ = nullptr;
         Config      cfg_;
-        std::unique_ptr<QTimer>   stop_timer_      = nullptr;
+        QTimer     *stop_timer_ = nullptr;
         /** @brief 主题 -> qos，重连后重放 */
         QHash<QString, quint8>    subscriptions_;
         /** @brief 断线待发：主题 -> 最新一条，同主题覆盖 */

@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <qobject.h>
 #include <qstringview.h>
 #include <qtmetamacros.h>
@@ -75,7 +74,7 @@ namespace app
 
         Config cfg_ ;
         /**@brief 连接的客户端*/
-        std::unique_ptr<QSerialPort> port_;
+        QSerialPort *port_ = nullptr;
 
         /**@brief最近的接收队列 */
         std::queue<QByteArray> recv_pending_;
