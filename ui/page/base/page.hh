@@ -155,20 +155,30 @@ namespace app::ui::base
         void set_footer_widget(QWidget *w, Qt::Alignment alignment = {});
         /** @} */
 
+        /**
+         * @brief 主动进入页面：显示页面并触发 on_enter()/entered（重复调用不会重复触发）。
+         */
+        void enter();
+
+        /**
+         * @brief 主动离开页面：隐藏页面并触发 on_leave()/left（重复调用不会重复触发）。
+         */
+        void leave();
+
     signals:
         /**
-         * @brief 页面首次变为可见时触发。
+         * @brief 每次进入页面时触发。
          */
         void entered();
 
         /**
-         * @brief 页面被隐藏时触发（最小化、父窗口隐藏也会触发）。
+         * @brief 每次离开页面时触发（最小化、父窗口隐藏也会触发）。
          */
         void left();
 
     protected:
         /**
-         * @brief 首次进入页面时的钩子，子类直接覆写即可，无需自己 connect。
+         * @brief 每次进入页面的钩子，子类直接覆写即可，无需自己 connect。
          */
         virtual void on_enter() {}
 
@@ -182,6 +192,8 @@ namespace app::ui::base
 
     private:
         void rebuild_layout();
+        void enter_state();
+        void leave_state();
         void replace_widget(QPointer<QWidget> &slot, QBoxLayout *layout, QWidget *w, int stretch, Qt::Alignment alignment);
 
         LayoutMode layout_mode_ = LayoutMode::LeftNavTopTabs;
@@ -215,7 +227,7 @@ namespace app::ui::base
         QPointer<QWidget> content_widget_;
         QPointer<QWidget> footer_widget_;
 
-        bool entered_once_ = false;
+        bool entered_ = false;
     };
 
 } // namespace app

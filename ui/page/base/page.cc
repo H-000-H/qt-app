@@ -176,21 +176,45 @@ namespace app::ui::base
         replace_widget(footer_widget_, footer_layout_, w, 0, alignment);
     }
 
+    void PageBase::enter()
+    {
+        show();
+        enter_state();
+    }
+
+    void PageBase::leave()
+    {
+        hide();
+        leave_state();
+    }
+
+    void PageBase::enter_state()
+    {
+        if (entered_)
+            return;
+        entered_ = true;
+        on_enter();
+        emit entered();
+    }
+
+    void PageBase::leave_state()
+    {
+        if (!entered_)
+            return;
+        entered_ = false;
+        on_leave();
+        emit left();
+    }
+
     void PageBase::showEvent(QShowEvent *e)
     {
         QWidget::showEvent(e);
-        if (!entered_once_)
-        {
-            entered_once_ = true;
-            on_enter();
-            emit entered();
-        }
+        enter_state();
     }
 
     void PageBase::hideEvent(QHideEvent *e)
     {
         QWidget::hideEvent(e);
-        on_leave();
-        emit left();
+        leave_state();
     }
 }
