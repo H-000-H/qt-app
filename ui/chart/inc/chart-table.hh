@@ -32,7 +32,7 @@ namespace app
     };
 
     template<ChartElement ElementData>
-    class Chart : public QAbstractTableModel
+    class ChartTable : public QAbstractTableModel
     {
     public:
         struct Config
@@ -50,7 +50,7 @@ namespace app
         /**
          * @brief 空构造：只准备模型，视图等上层自己调 open
          */
-        Chart(QObject *parent = nullptr) : QAbstractTableModel(parent)
+        ChartTable(QObject *parent = nullptr) : QAbstractTableModel(parent)
         {
 
         }
@@ -58,12 +58,12 @@ namespace app
         /**
          * @brief 带配置构造：构造即 open，直接把视图建出来并显示
          */
-        Chart(const Config &cfg, QObject *parent = nullptr) : QAbstractTableModel(parent)
+        ChartTable(const Config &cfg, QObject *parent = nullptr) : QAbstractTableModel(parent)
         {
             open(cfg);
         }
 
-        ~Chart() override
+        ~ChartTable() override
         {
             if(view_)
                 delete view_;

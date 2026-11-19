@@ -5,14 +5,14 @@ set(CHART_COMPONENT_INC
 )
 
 set(CHART_COMPONENT_HEADS
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc/data-view.hh
+    ${CMAKE_CURRENT_SOURCE_DIR}/inc/chart-table.hh
 )
 
 set(CHART_COMPONENT_SRC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/data-view.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/chart-table.cc
 )
 
-# 模板实现全在头文件里；src/data-view.cc 只负责把本目录编译条目送进 compile_commands.json
+# 模板实现全在头文件里；src/chart-table.cc 只负责把本目录编译条目送进 compile_commands.json
 add_library(${CHART_COMPONENT_NAME} STATIC
     ${CHART_COMPONENT_SRC}
     ${CHART_COMPONENT_HEADS}

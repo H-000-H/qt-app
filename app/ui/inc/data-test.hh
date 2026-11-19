@@ -1,4 +1,4 @@
-#include "data-view.hh"
+#include "chart-table.hh"
 #include <qcontainerfwd.h>
 namespace app
 {

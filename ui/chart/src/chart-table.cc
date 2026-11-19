@@ -3,4 +3,4 @@
  *        chart_component 只有头文件，没有这个 TU 时 clangd 只能从别的目录的
  *        编译条目推断参数，拿不到 Qt6::Widgets 的头文件路径。
  */
-#include "data-view.hh"
+#include "chart-table.hh"

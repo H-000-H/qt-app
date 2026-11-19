@@ -106,15 +106,38 @@ namespace app::ui::base
 
     void PageBase::rebuild_layout()
     {
-        const bool left_nav = (layout_mode_ == LayoutMode::LeftNavTopTabs);
+        const bool left_nav      = (layout_mode_ == LayoutMode::LeftNavTopTabs);
+        const bool primary_right = (layout_mode_ == LayoutMode::PrimaryRight);
+        const bool side_nav      = left_nav || primary_right;
 
         root_layout_->setDirection(QBoxLayout::TopToBottom);
-        main_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+        main_layout_->setDirection(side_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
         if (primary_nav_layout_ != nullptr)
-            primary_nav_layout_->setDirection(left_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
-        workspace_layout_->setDirection(left_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
+            primary_nav_layout_->setDirection(side_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
+        workspace_layout_->setDirection(side_nav ? QBoxLayout::TopToBottom : QBoxLayout::LeftToRight);
         if (secondary_nav_layout_ != nullptr)
-            secondary_nav_layout_->setDirection(left_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+            secondary_nav_layout_->setDirection(side_nav ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);
+
+        if (primary_nav_ == nullptr)
+            return;
+
+        const bool want_primary_first = !primary_right;
+        const bool is_primary_first  = main_layout_->indexOf(primary_nav_) < main_layout_->indexOf(workspace_);
+        if (want_primary_first == is_primary_first)
+            return;
+
+        main_layout_->removeWidget(primary_nav_);
+        main_layout_->removeWidget(workspace_);
+        if (primary_right)
+        {
+            main_layout_->addWidget(workspace_, 1);
+            main_layout_->addWidget(primary_nav_);
+        }
+        else
+        {
+            main_layout_->addWidget(primary_nav_);
+            main_layout_->addWidget(workspace_, 1);
+        }
     }
 
     void PageBase::replace_widget(QPointer<QWidget> &slot, QBoxLayout *layout, QWidget *w, int stretch, Qt::Alignment alignment)

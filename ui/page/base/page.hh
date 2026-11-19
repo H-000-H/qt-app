@@ -50,6 +50,18 @@ namespace app::ui::base
      *   │         │      footer_        │   │         │      footer_        │
      *   └─────────┴─────────────────────┘   └─────────┴─────────────────────┘
      *   模式 1：左侧主导航+顶部次级标签页      模式 2：顶部主导航+左侧次级菜单
+     *
+     *   ┌───────────────────────────────┐
+     *   │          top_bar_             │
+     *   ├─────────────────────┬─────────┤
+     *   │  secondary_nav_     │ primary │
+     *   ├─────────────────────┤  _nav_  │
+     *   │     content_        │         │
+     *   │     content_        │         │
+     *   │      footer_        │         │
+     *   └─────────────────────┴─────────┘
+     *   模式 3：左侧工作区+右侧主导航
+     *
      *   top_bar_：默认主界面顶栏（界面可选顶栏），不需要时隐藏，主区自动占满
      * @endcode
      */
@@ -65,7 +77,8 @@ namespace app::ui::base
         enum class LayoutMode
         {
             LeftNavTopTabs,   /* 左侧主导航侧边栏 + 右侧面板，面板顶部为次级标签页 */
-            TopNavLeftSubmenu /* 顶部主导航栏 + 下方面板，面板左侧为次级菜单 */
+            TopNavLeftSubmenu,/* 顶部主导航栏 + 下方面板，面板左侧为次级菜单 */
+            PrimaryRight      /* 右侧主导航侧边栏 + 左侧面板，面板顶部为次级标签页 */
         };
 
         explicit PageBase(Region regions,

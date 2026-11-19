@@ -1,5 +1,5 @@
 #include "csv-export.hh"
-#include "data-view.hh"
+#include "chart-table.hh"
 #include "data-test.hh"
 #include "log.hh"
 #include "tcp_client.hh"
@@ -15,11 +15,11 @@ int main(int argc, char *argv[])
 {
     app::log::install();
     QApplication app(argc,argv);
-    app::Chart<app::SensorRecord>::Config cfg;
+    app::ChartTable<app::SensorRecord>::Config cfg;
     cfg.title = "传感器记录";
 
     //  带配置构造：视图在构造里就开好了
-    app::Chart<app::SensorRecord> data(cfg);
+    app::ChartTable<app::SensorRecord> data(cfg);
 
     auto csv = new app::Csv();
     app::Csv::Config csv_cfg;
